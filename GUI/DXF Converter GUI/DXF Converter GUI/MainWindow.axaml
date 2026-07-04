@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:DXF_Converter_GUI.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="640"
+        x:Class="DXF_Converter_GUI.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Width="960" Height="660" MinWidth="720" MinHeight="520"
+        Title="DXF → SVG → PNG Converter">
+
+    <DockPanel Margin="16">
+
+        <TextBlock DockPanel.Dock="Top" Text="DXF → SVG → PNG Pipeline"
+                   FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4" />
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Upload a DXF (stage 1) or an SVG (stage 2), process to the next step, and download each output."
+                   Opacity="0.7" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+        <Border DockPanel.Dock="Bottom" Background="#20808080" CornerRadius="4"
+                Padding="10,6" Margin="0,12,0,0">
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+        </Border>
+
+        <Grid ColumnDefinitions="*,16,*">
+
+            <!-- Stage 1: DXF -> SVG -->
+            <Border Grid.Column="0" BorderBrush="#40808080" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <TextBlock Text="Stage 1 — DXF → SVG" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Load DXF…" Click="OnLoadDxf" HorizontalAlignment="Stretch" />
+                        <TextBlock Text="{Binding DxfFileName, StringFormat='File: {0}', FallbackValue='No DXF loaded'}"
+                                   Opacity="0.7" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Fill color" VerticalAlignment="Center" />
+                            <TextBox Text="{Binding FillColor}" Width="120" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Convert to SVG" Click="OnConvertToSvg"
+                                    IsEnabled="{Binding CanConvertToSvg}" />
+                            <Button Content="Download SVG…" Click="OnDownloadSvg"
+                                    IsEnabled="{Binding HasSvg}" />
+                        </StackPanel>
+                        <TextBlock Text="SVG preview" Opacity="0.7" Margin="0,4,0,0" />
+                    </StackPanel>
+                    <Border Background="#10808080" CornerRadius="4" Margin="0,4,0,0">
+                        <Image Source="{Binding SvgPreview}" Stretch="Uniform" Margin="8" />
+                    </Border>
+                </DockPanel>
+            </Border>
+
+            <!-- Stage 2: SVG -> PNG -->
+            <Border Grid.Column="2" BorderBrush="#40808080" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <TextBlock Text="Stage 2 — SVG → PNG" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Load SVG…" Click="OnLoadSvg" HorizontalAlignment="Stretch" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Width (px)" VerticalAlignment="Center" />
+                            <NumericUpDown Value="{Binding PngWidth}" Minimum="1" Maximum="20000"
+                                           Increment="1" FormatString="0" Width="140" />
+                        </StackPanel>
+                        <TextBlock Text="Height is derived from the width to preserve aspect ratio."
+                                   Opacity="0.6" FontSize="12" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Convert to PNG" Click="OnConvertToPng"
+                                    IsEnabled="{Binding CanConvertToPng}" />
+                            <Button Content="Download PNG…" Click="OnDownloadPng"
+                                    IsEnabled="{Binding HasPng}" />
+                        </StackPanel>
+                        <TextBlock Text="PNG preview" Opacity="0.7" Margin="0,4,0,0" />
+                    </StackPanel>
+                    <Border Background="#10808080" CornerRadius="4" Margin="0,4,0,0">
+                        <Image Source="{Binding PngPreview}" Stretch="Uniform" Margin="8" />
+                    </Border>
+                </DockPanel>
+            </Border>
+
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DXF Converter GUI/DXF Converter GUI.csproj" />
+  <Project Path="DxfToSvg.Core/DxfToSvg.Core.csproj" />
+  <Project Path="DxfToSvg.Tests/DxfToSvg.Tests.csproj" />
+</Solution>
