@@ -63,6 +63,15 @@ namespace DXF_Converter_GUI
             }
         }
 
+        private async void OnLoadPng(object? sender, RoutedEventArgs e)
+        {
+            string? path = await PickOpenAsync("Load a PNG file", PngType);
+            if (path is not null)
+            {
+                _viewModel.LoadPng(path);
+            }
+        }
+
         private void OnConvertToPng(object? sender, RoutedEventArgs e) => _viewModel.ConvertSvgToPng();
 
         private void OnRotatePng(object? sender, RoutedEventArgs e) => _viewModel.RotatePngClockwise();

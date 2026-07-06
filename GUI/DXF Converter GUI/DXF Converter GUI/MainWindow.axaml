@@ -3,18 +3,43 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:DXF_Converter_GUI.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="640"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="640"
         x:Class="DXF_Converter_GUI.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Width="960" Height="660" MinWidth="720" MinHeight="520"
+        Width="1200" Height="680" MinWidth="920" MinHeight="540"
         Title="DXF → SVG → PNG Converter">
+
+    <Window.Styles>
+        <!-- Transition column: an arrow and the controls that drive one conversion. -->
+        <Style Selector="StackPanel.transition">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Spacing" Value="8" />
+            <Setter Property="Width" Value="140" />
+        </Style>
+        <Style Selector="StackPanel.transition > TextBlock.arrow">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Opacity" Value="0.6" />
+        </Style>
+        <Style Selector="Border.node">
+            <Setter Property="BorderBrush" Value="#40808080" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14" />
+        </Style>
+        <Style Selector="Border.preview">
+            <Setter Property="Background" Value="#10808080" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+    </Window.Styles>
 
     <DockPanel Margin="16">
 
         <TextBlock DockPanel.Dock="Top" Text="DXF → SVG → PNG Pipeline"
                    FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4" />
         <TextBlock DockPanel.Dock="Top"
-                   Text="Upload a DXF (stage 1) or an SVG (stage 2), process to the next step, and download each output."
+                   Text="Each stage is a node you can upload into and preview; the arrows between them convert one format to the next."
                    Opacity="0.7" Margin="0,0,0,12" TextWrapping="Wrap" />
 
         <Border DockPanel.Dock="Bottom" Background="#20808080" CornerRadius="4"
@@ -22,62 +47,85 @@
             <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
         </Border>
 
-        <Grid ColumnDefinitions="*,16,*">
+        <!-- node | transition | node | transition | node -->
+        <Grid ColumnDefinitions="*,Auto,*,Auto,*">
 
-            <!-- Stage 1: DXF -> SVG -->
-            <Border Grid.Column="0" BorderBrush="#40808080" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!-- Node 1: DXF -->
+            <Border Grid.Column="0" Classes="node">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
-                        <TextBlock Text="Stage 1 — DXF → SVG" FontSize="16" FontWeight="SemiBold" />
-                        <Button Content="Load DXF…" Click="OnLoadDxf" HorizontalAlignment="Stretch" />
+                        <TextBlock Text="DXF" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Upload DXF…" Click="OnLoadDxf" HorizontalAlignment="Stretch" />
                         <TextBlock Text="{Binding DxfFileName, StringFormat='File: {0}', FallbackValue='No DXF loaded'}"
                                    Opacity="0.7" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="DXF preview" Opacity="0.7" Margin="0,4,0,0" />
+                    </StackPanel>
+                    <Border Classes="preview">
+                        <Image Source="{Binding DxfPreview}" Stretch="Uniform" Margin="8" />
+                    </Border>
+                </DockPanel>
+            </Border>
+
+            <!-- Transition: DXF -> SVG -->
+            <StackPanel Grid.Column="1" Classes="transition">
+                <TextBlock Classes="arrow" Text="→" />
+                <TextBlock Text="DXF → SVG" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                <StackPanel Spacing="2">
+                    <TextBlock Text="Fill color" Opacity="0.7" FontSize="12" />
+                    <TextBox Text="{Binding FillColor}" />
+                </StackPanel>
+                <Button Content="Convert" Click="OnConvertToSvg"
+                        HorizontalAlignment="Stretch" IsEnabled="{Binding CanConvertToSvg}" />
+            </StackPanel>
+
+            <!-- Node 2: SVG -->
+            <Border Grid.Column="2" Classes="node">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="8">
+                        <TextBlock Text="SVG" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Upload SVG…" Click="OnLoadSvg" HorizontalAlignment="Stretch" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="Fill color" VerticalAlignment="Center" />
-                            <TextBox Text="{Binding FillColor}" Width="120" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="Convert to SVG" Click="OnConvertToSvg"
-                                    IsEnabled="{Binding CanConvertToSvg}" />
                             <Button Content="Rotate 90° CW" Click="OnRotateSvg"
                                     IsEnabled="{Binding HasSvg}" />
-                            <Button Content="Download SVG…" Click="OnDownloadSvg"
+                            <Button Content="Download…" Click="OnDownloadSvg"
                                     IsEnabled="{Binding HasSvg}" />
                         </StackPanel>
                         <TextBlock Text="SVG preview" Opacity="0.7" Margin="0,4,0,0" />
                     </StackPanel>
-                    <Border Background="#10808080" CornerRadius="4" Margin="0,4,0,0">
+                    <Border Classes="preview">
                         <Image Source="{Binding SvgPreview}" Stretch="Uniform" Margin="8" />
                     </Border>
                 </DockPanel>
             </Border>
 
-            <!-- Stage 2: SVG -> PNG -->
-            <Border Grid.Column="2" BorderBrush="#40808080" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!-- Transition: SVG -> PNG -->
+            <StackPanel Grid.Column="3" Classes="transition">
+                <TextBlock Classes="arrow" Text="→" />
+                <TextBlock Text="SVG → PNG" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                <StackPanel Spacing="2">
+                    <TextBlock Text="Width (px)" Opacity="0.7" FontSize="12" />
+                    <NumericUpDown Value="{Binding PngWidth}" Minimum="1" Maximum="20000"
+                                   Increment="1" FormatString="0" />
+                </StackPanel>
+                <Button Content="Convert" Click="OnConvertToPng"
+                        HorizontalAlignment="Stretch" IsEnabled="{Binding CanConvertToPng}" />
+            </StackPanel>
+
+            <!-- Node 3: PNG -->
+            <Border Grid.Column="4" Classes="node">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
-                        <TextBlock Text="Stage 2 — SVG → PNG" FontSize="16" FontWeight="SemiBold" />
-                        <Button Content="Load SVG…" Click="OnLoadSvg" HorizontalAlignment="Stretch" />
+                        <TextBlock Text="PNG" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Upload PNG…" Click="OnLoadPng" HorizontalAlignment="Stretch" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="Width (px)" VerticalAlignment="Center" />
-                            <NumericUpDown Value="{Binding PngWidth}" Minimum="1" Maximum="20000"
-                                           Increment="1" FormatString="0" Width="140" />
-                        </StackPanel>
-                        <TextBlock Text="Height is derived from the width to preserve aspect ratio."
-                                   Opacity="0.6" FontSize="12" TextWrapping="Wrap" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="Convert to PNG" Click="OnConvertToPng"
-                                    IsEnabled="{Binding CanConvertToPng}" />
                             <Button Content="Rotate 90° CW" Click="OnRotatePng"
                                     IsEnabled="{Binding HasPng}" />
-                            <Button Content="Download PNG…" Click="OnDownloadPng"
+                            <Button Content="Download…" Click="OnDownloadPng"
                                     IsEnabled="{Binding HasPng}" />
                         </StackPanel>
                         <TextBlock Text="PNG preview" Opacity="0.7" Margin="0,4,0,0" />
                     </StackPanel>
-                    <Border Background="#10808080" CornerRadius="4" Margin="0,4,0,0">
+                    <Border Classes="preview">
                         <Image Source="{Binding PngPreview}" Stretch="Uniform" Margin="8" />
                     </Border>
                 </DockPanel>

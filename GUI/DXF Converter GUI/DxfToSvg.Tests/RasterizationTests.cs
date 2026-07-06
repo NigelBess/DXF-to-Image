@@ -31,4 +31,25 @@ public class RasterizationTests
         Assert.Equal(width, bitmap.Width);
         Assert.Equal(expectedHeight, bitmap.Height);
     }
+
+    [Fact]
+    public void DxfPreviewRendersRawGeometryToPng()
+    {
+        // The DXF-node preview shows raw linework and must not depend on face tracing.
+        byte[] png = DxfPreviewRenderer.RenderToPng(SampleDxf, 400);
+        using SKBitmap bitmap = SKBitmap.Decode(png);
+
+        Assert.Equal(400, bitmap.Width);
+        Assert.True(bitmap.Height > 0);
+    }
+
+    [Fact]
+    public void DxfPreviewSvgIsStrokeOnlyWithNoFill()
+    {
+        string svg = DxfPreviewRenderer.BuildStrokeSvg(SampleDxf);
+
+        Assert.Contains("<line", svg);
+        Assert.Contains("fill=\"none\"", svg);
+        Assert.DoesNotContain("<path", svg);
+    }
 }
