@@ -38,6 +38,8 @@ namespace DXF_Converter_GUI
 
         private void OnConvertToSvg(object? sender, RoutedEventArgs e) => _viewModel.ConvertDxfToSvg();
 
+        private void OnRotateSvg(object? sender, RoutedEventArgs e) => _viewModel.RotateSvgClockwise();
+
         private async void OnDownloadSvg(object? sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(_viewModel.SvgContent))
@@ -62,6 +64,8 @@ namespace DXF_Converter_GUI
         }
 
         private void OnConvertToPng(object? sender, RoutedEventArgs e) => _viewModel.ConvertSvgToPng();
+
+        private void OnRotatePng(object? sender, RoutedEventArgs e) => _viewModel.RotatePngClockwise();
 
         private async void OnDownloadPng(object? sender, RoutedEventArgs e)
         {

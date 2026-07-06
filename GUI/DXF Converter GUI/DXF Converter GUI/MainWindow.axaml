@@ -40,6 +40,8 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Convert to SVG" Click="OnConvertToSvg"
                                     IsEnabled="{Binding CanConvertToSvg}" />
+                            <Button Content="Rotate 90° CW" Click="OnRotateSvg"
+                                    IsEnabled="{Binding HasSvg}" />
                             <Button Content="Download SVG…" Click="OnDownloadSvg"
                                     IsEnabled="{Binding HasSvg}" />
                         </StackPanel>
@@ -68,6 +70,8 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Convert to PNG" Click="OnConvertToPng"
                                     IsEnabled="{Binding CanConvertToPng}" />
+                            <Button Content="Rotate 90° CW" Click="OnRotatePng"
+                                    IsEnabled="{Binding HasPng}" />
                             <Button Content="Download PNG…" Click="OnDownloadPng"
                                     IsEnabled="{Binding HasPng}" />
                         </StackPanel>

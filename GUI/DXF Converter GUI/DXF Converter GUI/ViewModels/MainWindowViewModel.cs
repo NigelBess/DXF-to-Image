@@ -120,6 +120,42 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    public void RotateSvgClockwise()
+    {
+        if (string.IsNullOrEmpty(SvgContent))
+        {
+            return;
+        }
+        try
+        {
+            SvgContent = Transforms.RotateSvgClockwise90(SvgContent);
+            UpdateSvgPreview();
+            Status = "Rotated SVG 90° clockwise.";
+        }
+        catch (Exception ex)
+        {
+            Status = $"Rotating SVG failed: {ex.Message}";
+        }
+    }
+
+    public void RotatePngClockwise()
+    {
+        if (PngBytes is null)
+        {
+            return;
+        }
+        try
+        {
+            PngBytes = Transforms.RotatePngClockwise90(PngBytes);
+            PngPreview = LoadBitmap(PngBytes);
+            Status = "Rotated PNG 90° clockwise.";
+        }
+        catch (Exception ex)
+        {
+            Status = $"Rotating PNG failed: {ex.Message}";
+        }
+    }
+
     private void UpdateSvgPreview()
     {
         if (string.IsNullOrEmpty(SvgContent))
