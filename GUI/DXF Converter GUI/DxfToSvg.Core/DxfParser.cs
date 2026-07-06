@@ -10,8 +10,12 @@ public static class DxfParser
 
     /// <summary>Reads the file as group-code/value line pairs (two lines at a time).</summary>
     public static List<(string Code, string Value)> ReadGroupPairs(string path)
+        => ReadGroupPairsFromText(File.ReadAllText(path));
+
+    /// <summary>Reads DXF text as group-code/value line pairs (two lines at a time).</summary>
+    public static List<(string Code, string Value)> ReadGroupPairsFromText(string text)
     {
-        string[] lines = File.ReadAllText(path).Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+        string[] lines = text.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
         var pairs = new List<(string, string)>();
         for (int index = 0; index + 1 < lines.Length; index += 2)
         {
@@ -57,10 +61,17 @@ public static class DxfParser
         }
     }
 
-    /// <summary>Parses the ENTITIES section into supported entities.</summary>
+    /// <summary>Parses the ENTITIES section of a DXF file into supported entities.</summary>
     public static List<IEntity> ParseEntities(string path)
+        => ParseEntitiesFromPairs(ReadGroupPairs(path));
+
+    /// <summary>Parses the ENTITIES section of DXF text into supported entities.</summary>
+    public static List<IEntity> ParseEntitiesFromText(string text)
+        => ParseEntitiesFromPairs(ReadGroupPairsFromText(text));
+
+    /// <summary>Parses the ENTITIES section from already-read group-code/value pairs.</summary>
+    public static List<IEntity> ParseEntitiesFromPairs(List<(string Code, string Value)> pairs)
     {
-        List<(string Code, string Value)> pairs = ReadGroupPairs(path);
         var entities = new List<IEntity>();
         bool inEntities = false;
         string? pendingKind = null;

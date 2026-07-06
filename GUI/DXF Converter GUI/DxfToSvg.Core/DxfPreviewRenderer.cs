@@ -9,17 +9,28 @@ namespace DxfToSvg.Core;
 /// the geometry does not form closed loops.</summary>
 public static class DxfPreviewRenderer
 {
-    /// <summary>Parses and flattens a DXF, emits a stroke-only SVG of the raw segments,
+    /// <summary>Parses and flattens a DXF file, emits a stroke-only SVG of the raw segments,
     /// and rasterizes it to PNG bytes at the target width.</summary>
     public static byte[] RenderToPng(string dxfPath, int width)
         => SvgRasterizer.RenderToPng(BuildStrokeSvg(dxfPath), width);
 
-    /// <summary>Builds a stroke-only SVG showing the DXF's flattened geometry. The orientation
-    /// matches <see cref="SvgWriter"/> (both axes flipped) so the DXF preview lines up with the
-    /// SVG the converter later produces.</summary>
+    /// <summary>As <see cref="RenderToPng(string,int)"/> but from in-memory DXF text.</summary>
+    public static byte[] RenderToPngFromContent(string dxfContent, int width)
+        => SvgRasterizer.RenderToPng(BuildStrokeSvgFromContent(dxfContent), width);
+
+    /// <summary>Builds a stroke-only SVG showing the DXF file's flattened geometry.</summary>
     public static string BuildStrokeSvg(string dxfPath)
+        => BuildStrokeSvgFromEntities(DxfParser.ParseEntities(dxfPath));
+
+    /// <summary>As <see cref="BuildStrokeSvg"/> but from in-memory DXF text.</summary>
+    public static string BuildStrokeSvgFromContent(string dxfContent)
+        => BuildStrokeSvgFromEntities(DxfParser.ParseEntitiesFromText(dxfContent));
+
+    /// <summary>Builds a stroke-only SVG showing the flattened geometry. The orientation matches
+    /// <see cref="SvgWriter"/> (both axes flipped) so the DXF preview lines up with the SVG the
+    /// converter later produces.</summary>
+    private static string BuildStrokeSvgFromEntities(List<IEntity> entities)
     {
-        List<IEntity> entities = DxfParser.ParseEntities(dxfPath);
         List<Segment> segments = Geometry.FlattenEntities(entities);
         if (segments.Count == 0)
         {

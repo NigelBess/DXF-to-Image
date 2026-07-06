@@ -11,8 +11,20 @@ public static class Converter
         string fill = DefaultFill,
         bool debugStrokes = false,
         double epsilon = 1e-5)
+        => ConvertEntitiesToSvg(DxfParser.ParseEntities(dxfPath), fill, debugStrokes, epsilon);
+
+    /// <summary>Same as <see cref="ConvertToSvg(string,string,bool,double)"/> but from in-memory
+    /// DXF text rather than a file path.</summary>
+    public static (string Svg, int FaceCount) ConvertToSvgFromContent(
+        string dxfContent,
+        string fill = DefaultFill,
+        bool debugStrokes = false,
+        double epsilon = 1e-5)
+        => ConvertEntitiesToSvg(DxfParser.ParseEntitiesFromText(dxfContent), fill, debugStrokes, epsilon);
+
+    private static (string Svg, int FaceCount) ConvertEntitiesToSvg(
+        List<IEntity> entities, string fill, bool debugStrokes, double epsilon)
     {
-        List<IEntity> entities = DxfParser.ParseEntities(dxfPath);
         List<Segment> segments = Geometry.FlattenEntities(entities);
         List<List<Point>> faces = FaceTracer.TraceFaces(segments, epsilon);
         var faceList = faces.Cast<IReadOnlyList<Point>>().ToList();
