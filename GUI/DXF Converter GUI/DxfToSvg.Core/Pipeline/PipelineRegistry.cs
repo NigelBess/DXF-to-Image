@@ -41,13 +41,14 @@ public sealed class PipelineRegistry
             : null;
 
     /// <summary>The default registry this app ships with: DXF/SVG/PNG previews and the
-    /// DXF→SVG, SVG→PNG, and rotate (SVG→SVG, PNG→PNG) transitions.</summary>
+    /// DXF→SVG, SVG→PNG, and rotate (DXF→DXF, SVG→SVG, PNG→PNG) transitions.</summary>
     public static PipelineRegistry CreateDefault()
     {
         var registry = new PipelineRegistry();
 
         registry.Register(new DxfToSvgTransition());
         registry.Register(new SvgToPngTransition());
+        registry.Register(new RotateDxfClockwiseTransition());
         registry.Register(new RotateSvgClockwiseTransition());
         registry.Register(new RotatePngClockwiseTransition());
 

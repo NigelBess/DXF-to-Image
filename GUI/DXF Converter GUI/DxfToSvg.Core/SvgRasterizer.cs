@@ -30,7 +30,7 @@ public static class SvgRasterizer
             throw new InvalidDataException("SVG has no drawable area (empty viewBox)");
         }
 
-        int height = Math.Max(1, (int)Math.Round(width * (double)cull.Height / cull.Width));
+        int height = HeightForWidth((double)cull.Height / cull.Width, width);
         float scale = width / cull.Width;
 
         var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
@@ -46,6 +46,32 @@ public static class SvgRasterizer
         using SKData data = image.Encode(SKEncodedImageFormat.Png, 100);
         return data.ToArray();
     }
+
+    /// <summary>The intrinsic aspect ratio (height / width) of an SVG's drawable area, or null if
+    /// it cannot be measured. <see cref="RenderToPng"/> derives its output height by feeding this
+    /// ratio and the target width to <see cref="HeightForWidth"/>.</summary>
+    public static double? TryGetAspectRatio(string svgContent)
+    {
+        using var svg = new SKSvg();
+        SKPicture? picture = svg.FromSvg(svgContent);
+        if (picture is null)
+        {
+            return null;
+        }
+
+        SKRect cull = picture.CullRect;
+        if (cull.Width <= 0 || cull.Height <= 0)
+        {
+            return null;
+        }
+
+        return (double)cull.Height / cull.Width;
+    }
+
+    /// <summary>The PNG height (px) produced for a given target width and SVG aspect ratio
+    /// (height / width). Single source of truth for the width→height mapping.</summary>
+    public static int HeightForWidth(double aspectRatio, int width)
+        => Math.Max(1, (int)Math.Round(width * aspectRatio));
 
     /// <summary>Convenience helper: read an SVG file and write a PNG file.</summary>
     public static void RenderFileToPng(string svgPath, string pngPath, int width)

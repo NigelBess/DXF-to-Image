@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:DXF_Converter_GUI.ViewModels"
+        xmlns:controls="using:DXF_Converter_GUI.Controls"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="640"
         x:Class="DXF_Converter_GUI.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -27,11 +28,6 @@
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="14" />
         </Style>
-        <Style Selector="Border.preview">
-            <Setter Property="Background" Value="#10808080" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Margin" Value="0,6,0,0" />
-        </Style>
     </Window.Styles>
 
     <DockPanel Margin="16">
@@ -39,7 +35,7 @@
         <TextBlock DockPanel.Dock="Top" Text="DXF → SVG → PNG Pipeline"
                    FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4" />
         <TextBlock DockPanel.Dock="Top"
-                   Text="Each stage is a node you can upload into and preview; the arrows between them convert one format to the next."
+                   Text="Each stage is a node you can upload into, preview, rotate and download; the arrows between them convert one format to the next."
                    Opacity="0.7" Margin="0,0,0,12" TextWrapping="Wrap" />
 
         <Border DockPanel.Dock="Bottom" Background="#20808080" CornerRadius="4"
@@ -56,13 +52,8 @@
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <TextBlock Text="DXF" FontSize="16" FontWeight="SemiBold" />
                         <Button Content="Upload DXF…" Click="OnLoadDxf" HorizontalAlignment="Stretch" />
-                        <TextBlock Text="{Binding DxfFileName, StringFormat='File: {0}', FallbackValue='No DXF loaded'}"
-                                   Opacity="0.7" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="DXF preview" Opacity="0.7" Margin="0,4,0,0" />
                     </StackPanel>
-                    <Border Classes="preview">
-                        <Image Source="{Binding DxfPreview}" Stretch="Uniform" Margin="8" />
-                    </Border>
+                    <controls:PreviewPanel DataContext="{Binding DxfNode}" />
                 </DockPanel>
             </Border>
 
@@ -84,17 +75,8 @@
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <TextBlock Text="SVG" FontSize="16" FontWeight="SemiBold" />
                         <Button Content="Upload SVG…" Click="OnLoadSvg" HorizontalAlignment="Stretch" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="Rotate 90° CW" Click="OnRotateSvg"
-                                    IsEnabled="{Binding HasSvg}" />
-                            <Button Content="Download…" Click="OnDownloadSvg"
-                                    IsEnabled="{Binding HasSvg}" />
-                        </StackPanel>
-                        <TextBlock Text="SVG preview" Opacity="0.7" Margin="0,4,0,0" />
                     </StackPanel>
-                    <Border Classes="preview">
-                        <Image Source="{Binding SvgPreview}" Stretch="Uniform" Margin="8" />
-                    </Border>
+                    <controls:PreviewPanel DataContext="{Binding SvgNode}" />
                 </DockPanel>
             </Border>
 
@@ -106,6 +88,9 @@
                     <TextBlock Text="Width (px)" Opacity="0.7" FontSize="12" />
                     <NumericUpDown Value="{Binding PngWidth}" Minimum="1" Maximum="20000"
                                    Increment="1" FormatString="0" />
+                    <TextBlock Text="{Binding PngComputedHeight, StringFormat='Height: {0} px'}"
+                               IsVisible="{Binding HasPngComputedHeight}"
+                               Opacity="0.7" FontSize="12" Margin="0,2,0,0" />
                 </StackPanel>
                 <Button Content="Convert" Click="OnConvertToPng"
                         HorizontalAlignment="Stretch" IsEnabled="{Binding CanConvertToPng}" />
@@ -117,17 +102,8 @@
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <TextBlock Text="PNG" FontSize="16" FontWeight="SemiBold" />
                         <Button Content="Upload PNG…" Click="OnLoadPng" HorizontalAlignment="Stretch" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="Rotate 90° CW" Click="OnRotatePng"
-                                    IsEnabled="{Binding HasPng}" />
-                            <Button Content="Download…" Click="OnDownloadPng"
-                                    IsEnabled="{Binding HasPng}" />
-                        </StackPanel>
-                        <TextBlock Text="PNG preview" Opacity="0.7" Margin="0,4,0,0" />
                     </StackPanel>
-                    <Border Classes="preview">
-                        <Image Source="{Binding PngPreview}" Stretch="Uniform" Margin="8" />
-                    </Border>
+                    <controls:PreviewPanel DataContext="{Binding PngNode}" />
                 </DockPanel>
             </Border>
 
