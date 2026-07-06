@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DXF_Converter_GUI.Services;
 using DxfToSvg.Core;
 
 namespace DXF_Converter_GUI.ViewModels;
@@ -12,6 +13,28 @@ namespace DXF_Converter_GUI.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private const int PreviewWidth = 640;
+
+    private const string FillColorKey = "FillColor";
+    private const string PngWidthKey = "PngWidth";
+
+    private readonly UserPersistentData _settings = new("settings");
+
+    /// <summary>Guards against writing back to disk while the constructor is applying
+    /// the loaded values.</summary>
+    private readonly bool _loaded;
+
+    public MainWindowViewModel()
+    {
+        if (_settings.TryLoad(FillColorKey, out string? fill) && !string.IsNullOrWhiteSpace(fill))
+        {
+            FillColor = fill;
+        }
+        if (_settings.TryLoad<int>(PngWidthKey, out int width) && width > 0)
+        {
+            PngWidth = width;
+        }
+        _loaded = true;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConvertToSvg))]
@@ -46,6 +69,22 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>File name (without extension) of the most recently loaded input, used to
     /// suggest download names. Null until a DXF or SVG is loaded.</summary>
     public string? SourceBaseName { get; private set; }
+
+    partial void OnFillColorChanged(string value)
+    {
+        if (_loaded)
+        {
+            _settings.Save(FillColorKey, value);
+        }
+    }
+
+    partial void OnPngWidthChanged(int value)
+    {
+        if (_loaded)
+        {
+            _settings.Save<int>(PngWidthKey, value);
+        }
+    }
 
     public bool HasSvg => !string.IsNullOrEmpty(SvgContent);
     public bool HasPng => PngBytes is not null;
